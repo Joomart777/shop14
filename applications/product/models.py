@@ -4,12 +4,28 @@ from django.db import models
 
 User = get_user_model()
 
+
 class Category(models.Model):
-    slug = models.SlugField(max_length=30, primary_key=True)
-    description = models.TextField(blank=True, null=True)
+    title = models.TextField(max_length=100) #  GAME - game
+    slug = models.SlugField(max_length=30,
+                            primary_key=True,
+                            blank=True,
+                            unique=True)
+    parent = models.ForeignKey('Category',
+                               on_delete=models.CASCADE,
+                               null=True,
+                               blank=True,
+                               related_name='children')
 
     def __str__(self):
-        return self.slug
+        if not self.parent:
+            return self.slug
+        else:
+            return f'{self.parent} --> {self.slug}'
+
+    def save(self, *args, **kwargs):
+        self.slug = self.title.lower()
+        super(Category, self).save(*args, **kwargs)
 
 
 class Product(models.Model):

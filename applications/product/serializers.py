@@ -14,6 +14,17 @@ class CategorySerializers(serializers.ModelSerializer):
         model = Category
         fields = "__all__"
 
+    def validate_title(self, title):
+        if Category.objects.filter(slug=title.lower()).exists():
+            raise serializers.ValidationError('Такое название уже существует')
+        return title
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if not instance.parent:
+            representation.pop('parent')
+        return representation
+
 
 class RatingSerializers(serializers.ModelSerializer):
     # owner = serializers.EmailField(required=False)
