@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.viewsets import ModelViewSet, GenericViewSet, ViewSet
 
 from applications.product.filters import ProductFilter
-from applications.product.models import Product, Rating, Category
+from applications.product.models import Product, Rating, Category, Like
 from applications.product.permissions import IsAdmin, IsAuthor
 from applications.product.serializers import ProductSerializer, RatingSerializers, CategorySerializers
 
@@ -47,7 +47,7 @@ class ProductViewSet(ModelViewSet):
 
     # .../rating/2/
     @action(methods=['POST'], detail=True)
-    def rating(self, request, pk): # http://localhost:8000/product/id_product/rating/
+    def rating(self, request, pk): # http://localhost:8000/api/v1/product/id_product/rating/
         serializer = RatingSerializers(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -63,6 +63,18 @@ class ProductViewSet(ModelViewSet):
         obj.save()
         return Response(request.data,
                         status=status.HTTP_201_CREATED)
+
+    @action(methods=['POST'], detail=True)
+    def like(self, request, *args, **kwargs):
+        product = self.get_object()
+        like_obj, _ = Like.objects.get_or_create(product=product, owner=request.user)
+        like_obj.like = not like_obj.like
+        like_obj.save()
+        status = 'liked'
+        if not like_obj.like:
+            status = 'unlike'
+        return Response({'status': status})
+
 
 
 class CategoryListCreateView(ListCreateAPIView):

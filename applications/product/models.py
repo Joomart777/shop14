@@ -41,3 +41,23 @@ class Rating(models.Model):
         MinValueValidator(1),
         MaxValueValidator(5)
     ])
+
+
+class Like(models.Model):
+    """
+    Модель лайков
+    """
+    owner = models.ForeignKey(User,
+                              on_delete=models.CASCADE,
+                              related_name='like',
+                              verbose_name='Владелец лайка'
+                              )
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE,
+                                related_name='like',
+                                verbose_name='Продукт'
+                                )
+    like = models.BooleanField('ЛАААЙК', default=False)
+
+    def __str__(self):
+        return f'{self.owner}, {self.like}'

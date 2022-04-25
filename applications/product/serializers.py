@@ -1,6 +1,12 @@
 from rest_framework import serializers
 
-from applications.product.models import Product, Image, Rating, Category
+from applications.product.models import Product, Image, Rating, Category, Like
+
+
+class LikeSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
 
 
 class CategorySerializers(serializers.ModelSerializer):
@@ -29,7 +35,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'owner', 'name', 'description', 'price', 'category', 'images', 'rating')
+        fields = ('id', 'owner', 'name', 'description', 'price', 'category', 'images')
 
     def create(self, validated_data):
         request = self.context.get('request')
@@ -49,4 +55,6 @@ class ProductSerializer(serializers.ModelSerializer):
             representation['rating'] = rating_result
         else:
             representation['rating'] = rating_result / instance.rating.all().count()
+        representation['likes'] = instance.like.filter(like=True).count()
+
         return representation

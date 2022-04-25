@@ -6,3 +6,6 @@ python-decouple
 dj-config-url
 drf-yasg
 django-filter
+celery
+redis
+celery[redis]

@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model, authenticate
 from rest_framework import serializers
 
-from applications.account.send_mail import send_confirmation_email
+# from applications.account.send_mail import send_confirmation_email
+from shop.tasks import send_confirmation_email
 
 User = get_user_model()
 
@@ -21,15 +22,16 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Password do not match!')
         return attrs
 
-    def validate_email(self, email):
-        if not email.endswith("gmail.com"):
-            raise serializers.ValidationError("Your email must end with 'gmail.com'")
-        return email
+    # def validate_email(self, email):
+    #     if not email.endswith("gmail.com"):
+    #         raise serializers.ValidationError("Your email must end with 'gmail.com'")
+    #     return email
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         code = user.activation_code
-        send_confirmation_email(code, user)
+        # send_confirmation_email(code, user)
+        send_confirmation_email.delay(code, user.email)
         return user
 
 class LoginSerializer(serializers.Serializer):
