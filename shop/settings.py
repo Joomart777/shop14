@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # my apps
     'applications.product',
     'applications.account',
+    'applications.cart',
 
     # modules
     'rest_framework',
